@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,16 +19,22 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import hod.api.hodclient.HODApps;
 import hod.api.hodclient.HODClient;
 import hod.api.hodclient.IHODClientCallback;
+import hod.response.parser.FaceDetectionResponse;
 import hod.response.parser.HODResponseParser;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
@@ -38,6 +46,10 @@ public class Home extends Activity implements IHODClientCallback {
     ImageView mPic;
     String mCurrentPhotoPath = "";
     String mJobID = "";
+    int left;
+    int top;
+    int width;
+    int height;
 
     HODResponseParser mHodParser = new HODResponseParser();
     HODClient mHodClient = new HODClient("a9ba52cf-4392-4212-bfdb-6c051673d75e", this);
@@ -48,10 +60,26 @@ public class Home extends Activity implements IHODClientCallback {
         mJobID = mHodParser.ParseJobID(response);
         if (mJobID.length() > 0)
             mHodClient.GetJobResult(mJobID);
+
     }
     @Override
     public void requestCompletedWithContent(String response){
+
         Log.d("Home:rCWC:", response);
+
+
+            FaceDetectionResponse encodedResponse = mHodParser.ParseFaceDetectionResponse(response);
+            List<FaceDetectionResponse.Face> face = encodedResponse.face;
+            left = face.get(0).left;
+            top = face.get(0).top;
+            width = face.get(0).width;
+            height = face.get(0).height;
+
+            mPic.setImageBitmap(Bitmap.createBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath), left, top, width, height));
+//            Glide.with(Home.this).load(mCurrentPhotoPath)
+//                .bitmapTransform(new CropCircleTransformation(getApplicationContext()))
+//                .into(mPic);
+
 
     }
     @Override
