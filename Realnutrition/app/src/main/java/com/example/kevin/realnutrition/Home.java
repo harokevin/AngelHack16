@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -16,7 +18,6 @@ import android.widget.ImageView;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -70,30 +71,38 @@ public class Home extends Activity {
     }
 
     private void setPic() {
-//        // Get the dimensions of the View
-//        int targetW = mPic.getWidth();
-//        int targetH = mPic.getHeight();
-//
-//        // Get the dimensions of the bitmap
-//        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-//        bmOptions.inJustDecodeBounds = true;
-//        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-//        int photoW = bmOptions.outWidth;
-//        int photoH = bmOptions.outHeight;
-//
-//        // Determine how much to scale down the image
-//        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
-//
-//        // Decode the image file into a Bitmap sized to fill the View
-//        bmOptions.inJustDecodeBounds = false;
-//        bmOptions.inSampleSize = scaleFactor;
-//        //bmOptions.inPurgeable = true;
-
         try{
-            InputStream is = new URL( mCurrentPhotoPath ).openStream();
-            Bitmap bitmap = BitmapFactory.decodeStream(is);
+            //InputStream is = new URL( mCurrentPhotoPath ).openStream();
+            //Bitmap bitmap = BitmapFactory.decodeStream(is);
+            Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
+
+            //Determine the orientation and rotate the bitmap accordingly
+            //This is done so the image is upright when displayed in the activity
+            try {
+                ExifInterface exif = new ExifInterface(mCurrentPhotoPath);
+                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+
+                Matrix matrix = new Matrix();
+                if (orientation == 6) {
+                    matrix.postRotate(90);
+                }
+                else if (orientation == 3) {
+                    matrix.postRotate(180);
+                }
+                else if (orientation == 8) {
+                    matrix.postRotate(270);
+                }
+                bitmap = Bitmap.createBitmap(bitmap,
+                        0, 0, bitmap.getWidth(),
+                        bitmap.getHeight(),
+                        matrix, true); // rotating bitmap
+            }
+            catch (Exception e) {
+                Log.d("Home:setPic:rotation:", e.toString());
+            }
+
             mPic.setImageBitmap(bitmap);
-        }catch (IOException e) {
+        }catch (Exception e) {
             Log.e("Home:setPic:",e.getMessage());
         }
     }
@@ -111,7 +120,7 @@ public class Home extends Activity {
         );
 
         // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = "file:" + image.getAbsolutePath();
+        mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
 }
