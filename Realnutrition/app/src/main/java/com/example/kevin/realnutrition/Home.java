@@ -15,6 +15,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -26,6 +28,7 @@ import hod.api.hodclient.HODApps;
 import hod.api.hodclient.HODClient;
 import hod.api.hodclient.IHODClientCallback;
 import hod.response.parser.HODResponseParser;
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 public class Home extends Activity implements IHODClientCallback {
 
@@ -130,6 +133,10 @@ public class Home extends Activity implements IHODClientCallback {
 
             mPic.setImageBitmap(bitmap);
             getFaceCoordinates();
+
+            Glide.with(Home.this).load(mCurrentPhotoPath)
+                    .bitmapTransform(new CropCircleTransformation(getApplicationContext()))
+                    .into(mPic);
         }catch (Exception e) {
             Log.e("Home:setPic:",e.getMessage());
         }
