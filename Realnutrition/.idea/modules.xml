@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Realnutrition.iml" filepath="$PROJECT_DIR$/Realnutrition.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hodclient/hodclient.iml" filepath="$PROJECT_DIR$/hodclient/hodclient.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hodresponseparser/hodresponseparser.iml" filepath="$PROJECT_DIR$/hodresponseparser/hodresponseparser.iml" />
     </modules>
   </component>
 </project>

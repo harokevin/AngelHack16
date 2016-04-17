@@ -22,12 +22,24 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Home extends Activity {
+import hod.api.hodclient.HODClient;
+import hod.api.hodclient.IHODClientCallback;
+
+public class Home extends Activity implements IHODClientCallback {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
+
     Button mTakePic;
     ImageView mPic;
     String mCurrentPhotoPath = "";
+
+    HODClient hodClient = new HODClient("your-api-key", this);
+    @Override
+    public void requestCompletedWithJobID(String response){ }
+    @Override
+    public void requestCompletedWithContent(String response){ }
+    @Override
+    public void onErrorOccurred(String errorMessage){ }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
