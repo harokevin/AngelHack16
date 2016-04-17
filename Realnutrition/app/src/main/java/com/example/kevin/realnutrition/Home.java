@@ -17,13 +17,15 @@ import android.widget.ImageView;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
+import hod.api.hodclient.HODApps;
 import hod.api.hodclient.HODClient;
 import hod.api.hodclient.IHODClientCallback;
+import hod.response.parser.HODResponseParser;
 
 public class Home extends Activity implements IHODClientCallback {
 
@@ -32,14 +34,27 @@ public class Home extends Activity implements IHODClientCallback {
     Button mTakePic;
     ImageView mPic;
     String mCurrentPhotoPath = "";
+    String mJobID = "";
 
-    HODClient hodClient = new HODClient("your-api-key", this);
+    HODResponseParser mHodParser = new HODResponseParser();
+    HODClient mHodClient = new HODClient("a9ba52cf-4392-4212-bfdb-6c051673d75e", this);
     @Override
-    public void requestCompletedWithJobID(String response){ }
+    public void requestCompletedWithJobID(String response){
+        Log.d("Home:rCWJID:","");
+
+        mJobID = mHodParser.ParseJobID(response);
+        if (mJobID.length() > 0)
+            mHodClient.GetJobResult(mJobID);
+    }
     @Override
-    public void requestCompletedWithContent(String response){ }
+    public void requestCompletedWithContent(String response){
+        Log.d("Home:rCWC:", response);
+
+    }
     @Override
-    public void onErrorOccurred(String errorMessage){ }
+    public void onErrorOccurred(String errorMessage){
+        Log.e("Home:oEO:", errorMessage);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,9 +129,19 @@ public class Home extends Activity implements IHODClientCallback {
             }
 
             mPic.setImageBitmap(bitmap);
+            getFaceCoordinates();
         }catch (Exception e) {
             Log.e("Home:setPic:",e.getMessage());
         }
+    }
+
+    private void getFaceCoordinates(){
+        Map<String,Object> params = new HashMap<String, Object>();
+        params.put("file",mCurrentPhotoPath);
+        params.put("mode","document_photo");
+
+        Log.d("Home:gFC:", "");
+        mHodClient.PostRequest(params, HODApps.DETECT_FACES, HODClient.REQ_MODE.ASYNC);
     }
 
     private File createImageFile() throws IOException {
